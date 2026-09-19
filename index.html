@@ -1,0 +1,813 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>ไรเดอร์สายเปย์</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts: Inter & Kanit (For Thai) -->
+    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Kanit', sans-serif;
+            background-color: #f3f4f6;
+            overflow-y: auto !important; /* ปลดล็อกให้เลื่อนจอได้ */
+        }
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 5px; }
+        ::-webkit-scrollbar-track { background: #f1f1f1; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+        
+        .app-container {
+            max-width: 480px;
+            margin: 0 auto;
+            background-color: #ffffff;
+            min-height: 100vh;
+            position: relative;
+            box-shadow: 0 0 20px rgba(0,0,0,0.05);
+            padding-bottom: 100px;
+        }
+        /* เปลี่ยนเป็นสีฟ้าไล่เฉด */
+        .header-gradient {
+            background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 50%, #0ea5e9 100%);
+        }
+        .btn-gradient {
+            background: linear-gradient(to right, #2563eb, #0ea5e9);
+            transition: all 0.3s ease;
+        }
+        .btn-gradient:hover {
+            opacity: 0.9;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(14, 165, 233, 0.3);
+        }
+        .input-style { transition: all 0.2s; }
+        .input-style:focus {
+            border-color: #0ea5e9;
+            box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.1);
+        }
+        .blur-qr {
+            filter: blur(8px);
+            pointer-events: none;
+        }
+    </style>
+</head>
+<body class="text-gray-800 antialiased">
+
+    <div class="app-container">
+        
+        <!-- Header -->
+        <div class="header-gradient text-white rounded-b-3xl shadow-lg relative z-10 px-6 pt-10 pb-8">
+            <div class="flex justify-between items-center mb-6">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-md">
+                        <i class="fa-solid fa-motorcycle text-blue-600 text-lg"></i>
+                    </div>
+                    <div>
+                        <h1 class="text-xl font-bold tracking-wide">ไรเดอร์สายเปย์</h1>
+                        <p class="text-xs text-blue-100 opacity-90">บริการรับ-ส่งของ รวดเร็วทันใจ</p>
+                    </div>
+                </div>
+                <div class="bg-white/20 backdrop-blur-sm py-1.5 px-3 rounded-full flex items-center gap-2 border border-white/30">
+                    <div class="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
+                    <span class="text-xs font-medium">พร้อมให้บริการ</span>
+                </div>
+            </div>
+            
+            <!-- Progress Bar -->
+            <div class="flex justify-between items-center px-2 relative">
+                <div class="absolute left-0 top-1/2 -translate-y-1/2 w-full h-1 bg-blue-400/50 -z-10 rounded-full"></div>
+                <div id="progress-line" class="absolute left-0 top-1/2 -translate-y-1/2 h-1 bg-white -z-10 rounded-full transition-all duration-500 w-0"></div>
+                
+                <div class="step-indicator flex flex-col items-center gap-1 active" id="step-dot-1">
+                    <div class="w-6 h-6 rounded-full bg-white text-blue-600 flex items-center justify-center text-xs font-bold shadow-md transition-all duration-300">1</div>
+                </div>
+                <div class="step-indicator flex flex-col items-center gap-1" id="step-dot-2">
+                    <div class="w-6 h-6 rounded-full bg-blue-400/50 text-white flex items-center justify-center text-xs font-bold transition-all duration-300">2</div>
+                </div>
+                <div class="step-indicator flex flex-col items-center gap-1" id="step-dot-3">
+                    <div class="w-6 h-6 rounded-full bg-blue-400/50 text-white flex items-center justify-center text-xs font-bold transition-all duration-300">3</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Step 1: ข้อมูลคำสั่งซื้อ -->
+        <div id="step1" class="px-5 pt-6 pb-24 transition-all duration-500 block">
+            <h2 class="text-lg font-bold text-gray-800 mb-3 flex items-center gap-2">
+                <i class="fa-solid fa-basket-shopping text-blue-500"></i> ข้อมูลคำสั่งซื้อ
+            </h2>
+            
+            <!-- ป้ายประกาศอัตราค่าบริการ -->
+            <div class="bg-blue-50/80 border border-blue-100 rounded-xl p-3 mb-4 flex items-start gap-2 shadow-sm">
+                <i class="fa-solid fa-circle-info text-blue-500 mt-0.5"></i>
+                <p class="text-xs text-blue-800 leading-relaxed">
+                    <strong>อัตราค่าบริการ:</strong> คิดค่าส่งตามระยะทางจริง (ระยะทางไปรับของ + ระยะทางไปส่งลูกค้า) <strong>กิโลเมตรละ 8-9 บาท</strong> อย่างโปร่งใส
+                </p>
+            </div>
+            
+            <div class="space-y-4">
+                <!-- รายการสินค้า -->
+                <div class="bg-white p-4 rounded-2xl shadow-sm border border-gray-100">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">ฝากซื้อ / สิ่งของที่ต้องรับ</label>
+                    <textarea id="orderDetails" rows="2" class="input-style w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none" placeholder="เช่น ข้าวมันไก่ 2 ห่อ, เอกสารซองสีน้ำตาล..."></textarea>
+                    <p id="error-order" class="text-red-500 text-xs mt-1 hidden"><i class="fa-solid fa-circle-exclamation"></i> กรุณาระบุรายการสินค้า</p>
+                </div>
+
+                <!-- สถานที่รับของ -->
+                <div class="bg-white p-4 rounded-2xl shadow-sm border border-gray-100">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">สถานที่รับของ (ต้นทาง)</label>
+                    <div class="relative mb-3">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <i class="fa-solid fa-store text-gray-400"></i>
+                        </div>
+                        <input type="text" id="pickupLocation" class="input-style w-full bg-gray-50 border border-gray-200 rounded-xl pl-10 pr-4 py-3 text-sm focus:outline-none" placeholder="ชื่อร้าน หรือ สถานที่รับของ">
+                    </div>
+                    
+                    <!-- ปักหมุดที่อยู่รับของ -->
+                    <label class="block text-xs font-medium text-gray-600 mb-1">พิกัดร้าน/จุดรับของ (ลิงก์แผนที่)</label>
+                    <div class="flex gap-2 mb-1">
+                        <button type="button" onclick="getLocation('pickup', this)" class="bg-blue-50 text-blue-600 px-3 py-2 rounded-xl text-sm font-medium hover:bg-blue-100 transition border border-blue-100 flex items-center gap-1 shrink-0 shadow-sm">
+                            <i class="fa-solid fa-location-crosshairs"></i> ปักหมุด
+                        </button>
+                        <input type="text" id="pickupLink" oninput="if(typeof calculateLiveFee === 'function') calculateLiveFee()" class="input-style flex-1 bg-gray-50 border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none" placeholder="หรือวางลิงก์ Google Maps">
+                    </div>
+                    <p class="text-[10px] text-gray-400">กดปักหมุด หรือ นำลิงก์หมุดมาวาง (ไม่บังคับ)</p>
+                    
+                    <p id="error-pickup" class="text-red-500 text-xs mt-1 hidden"><i class="fa-solid fa-circle-exclamation"></i> กรุณาระบุสถานที่รับของ</p>
+                </div>
+
+                <!-- ราคาสินค้า -->
+                <div class="bg-white p-4 rounded-2xl shadow-sm border border-gray-100">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">ราคาสินค้าโดยประมาณ (บาท)</label>
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <i class="fa-solid fa-baht-sign text-gray-400"></i>
+                        </div>
+                        <input type="number" id="itemPrice" class="input-style w-full bg-gray-50 border border-gray-200 rounded-xl pl-10 pr-4 py-3 text-sm focus:outline-none" placeholder="หากไม่มีให้ใส่ 0" value="0">
+                    </div>
+                    <p class="text-xs text-gray-500 mt-2"><i class="fa-solid fa-circle-info text-blue-400"></i> ราคานี้จะถูกนำไปรวมกับค่าจัดส่งในหน้าชำระเงิน</p>
+                </div>
+            </div>
+
+            <!-- Bottom Action 1 -->
+            <div class="fixed bottom-0 left-0 w-full bg-white border-t border-gray-100 p-4 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)] z-40">
+                <div class="max-w-[480px] mx-auto">
+                    <button onclick="goToStep2()" class="btn-gradient w-full text-white font-semibold py-3.5 rounded-xl shadow-lg flex items-center justify-center gap-2">
+                        ถัดไป <i class="fa-solid fa-arrow-right"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Step 2: ข้อมูลการจัดส่ง (พิมพ์ที่อยู่เอง + หมุดจัดส่ง) -->
+        <div id="step2" class="px-5 pt-6 pb-24 transition-all duration-500 hidden opacity-0 transform translate-x-8">
+            <button onclick="goBackToStep1()" class="text-blue-600 text-sm font-medium mb-4 flex items-center gap-1 hover:text-blue-700">
+                <i class="fa-solid fa-chevron-left"></i> ย้อนกลับ
+            </button>
+
+            <h2 class="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
+                <i class="fa-solid fa-location-dot text-blue-500"></i> ข้อมูลการจัดส่ง
+            </h2>
+            
+            <div class="space-y-4">
+                
+                <!-- พิมพ์รายละเอียดที่อยู่จัดส่ง -->
+                <div class="bg-white p-4 rounded-2xl shadow-sm border border-gray-100">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">ที่อยู่จัดส่งโดยละเอียด</label>
+                    <textarea id="addressDetails" rows="3" class="input-style w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none" placeholder="บ้านเลขที่, หมู่, ซอย, ตำบล, จุดสังเกต (เช่น บ้านสีฟ้า ประตูรั้วไม้)..."></textarea>
+                    <p id="error-address" class="text-red-500 text-xs mt-1 hidden"><i class="fa-solid fa-circle-exclamation"></i> กรุณาระบุที่อยู่จัดส่ง</p>
+                    
+                    <!-- ปักหมุดที่อยู่จัดส่ง -->
+                    <div class="mt-4 pt-3 border-t border-gray-100">
+                        <label class="block text-xs font-medium text-gray-600 mb-1">พิกัดจัดส่ง (ลิงก์แผนที่)</label>
+                        <div class="flex gap-2 mb-1">
+                            <button type="button" onclick="getLocation('delivery', this)" class="bg-blue-50 text-blue-600 px-3 py-2 rounded-xl text-sm font-medium hover:bg-blue-100 transition border border-blue-100 flex items-center gap-1 shrink-0 shadow-sm">
+                                <i class="fa-solid fa-location-crosshairs"></i> ปักหมุด
+                            </button>
+                            <input type="text" id="deliveryLink" oninput="if(typeof calculateLiveFee === 'function') calculateLiveFee()" class="input-style flex-1 bg-gray-50 border border-gray-200 rounded-xl px-3 py-2 text-sm focus:outline-none" placeholder="หรือวางลิงก์ Google Maps">
+                        </div>
+                        <p class="text-[10px] text-gray-400">กดปักหมุด หรือ นำลิงก์หมุดมาวาง (ไม่บังคับ)</p>
+                    </div>
+                </div>
+
+                <!-- ข้อมูลผู้รับ -->
+                <div class="bg-white p-4 rounded-2xl shadow-sm border border-gray-100">
+                    <h3 class="text-sm font-medium text-gray-700 mb-3 border-b border-gray-100 pb-2">ข้อมูลผู้รับ</h3>
+                    <div class="space-y-3">
+                        <div>
+                            <input type="text" id="receiverName" class="input-style w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none" placeholder="ชื่อผู้รับ">
+                            <p id="error-name" class="text-red-500 text-xs mt-1 hidden">กรุณาระบุชื่อผู้รับ</p>
+                        </div>
+                        <div>
+                            <input type="tel" id="receiverPhone" class="input-style w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none" placeholder="เบอร์โทรศัพท์">
+                            <p id="error-phone" class="text-red-500 text-xs mt-1 hidden">กรุณาระบุเบอร์โทรศัพท์</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ระบุระยะทาง (ใหม่) -->
+                <div class="bg-white p-4 rounded-2xl shadow-sm border border-gray-100">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">ระยะทางจัดส่ง (กิโลเมตร)</label>
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <i class="fa-solid fa-route text-gray-400"></i>
+                        </div>
+                        <input type="number" id="distanceInput" step="0.1" oninput="calculateLiveFee()" class="input-style w-full bg-gray-50 border border-gray-200 rounded-xl pl-10 pr-4 py-3 text-sm focus:outline-none" placeholder="เช่น 5.5 (ดูจาก Google Maps)">
+                    </div>
+                    <p class="text-xs text-gray-500 mt-2"><i class="fa-solid fa-circle-info text-blue-400"></i> ระบุระยะทางจากแอป Maps เพื่อให้ค่าส่งแม่นยำ 100% (ถ้าระบุ ระบบจะยึดตามนี้)</p>
+                </div>
+
+                <!-- โค้ดส่วนลด -->
+                <div class="bg-white p-4 rounded-2xl shadow-sm border border-gray-100">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">โค้ดส่วนลด (ถ้ามี)</label>
+                    <div class="flex gap-2">
+                        <input type="text" class="input-style flex-1 bg-gray-50 border border-gray-200 rounded-xl px-4 py-2 text-sm focus:outline-none" placeholder="พิมพ์โค้ดที่นี่">
+                        <button class="bg-blue-600 text-white px-4 py-2 rounded-xl text-sm font-medium hover:bg-blue-700 transition">ใช้โค้ด</button>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Bottom Action 2 -->
+            <div class="fixed bottom-0 left-0 w-full bg-white border-t border-gray-100 p-4 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)] z-40">
+                <div class="max-w-[480px] mx-auto flex items-center justify-between gap-4">
+                    <div class="flex-1">
+                        <p class="text-xs text-gray-500">ค่าส่งประเมิน <span class="text-blue-500 font-medium">(กม.ละ 8-9 บ.)</span></p>
+                        <p class="text-xl font-bold text-blue-600" id="previewFee">฿0</p>
+                    </div>
+                    <button onclick="goToStep3()" class="btn-gradient px-8 py-3.5 rounded-xl text-white font-semibold shadow-lg flex items-center gap-2">
+                        ชำระเงิน <i class="fa-solid fa-wallet"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Step 3: ชำระเงิน (QR Code & Upload Slip) -->
+        <div id="step3" class="px-5 pt-6 pb-28 transition-all duration-500 hidden opacity-0 transform translate-x-8">
+            <button onclick="goBackToStep2()" class="text-blue-600 text-sm font-medium mb-4 flex items-center gap-1 hover:text-blue-700">
+                <i class="fa-solid fa-chevron-left"></i> แก้ไขที่อยู่
+            </button>
+
+            <div class="bg-white rounded-3xl shadow-lg border border-gray-100 overflow-hidden text-center p-6 relative">
+                <!-- ตกแต่งพื้นหลัง -->
+                <div class="absolute top-0 left-0 w-full h-24 bg-blue-50 -z-10 rounded-b-[40%]"></div>
+                
+                <h2 class="text-xl font-bold text-gray-800 mb-1">ชำระเงิน</h2>
+                <p class="text-sm text-gray-500 mb-6">สแกน QR Code ด้านล่างเพื่อยืนยันออเดอร์</p>
+
+                <div class="bg-gray-50 p-4 rounded-2xl inline-block mb-4 border border-gray-200 relative w-full max-w-[280px] mx-auto">
+                    <!-- รูป QR Code จากไฟล์ของผู้ใช้ -->
+                    <img src="S__64929810.jpg" alt="QR Code" id="qrImage" class="w-full h-auto rounded-xl shadow-sm transition-all duration-300" onerror="this.src='https://placehold.co/400x400/2563eb/ffffff?text=QR+Code'">
+                    
+                    <div id="qrTimeoutOverlay" class="absolute inset-0 bg-white/80 backdrop-blur-sm rounded-2xl flex flex-col items-center justify-center hidden">
+                        <i class="fa-solid fa-clock-rotate-left text-3xl text-gray-400 mb-2"></i>
+                        <p class="text-sm font-semibold text-gray-700">QR Code หมดอายุ</p>
+                        <button onclick="location.reload()" class="mt-2 text-xs text-blue-600 underline">ทำรายการใหม่</button>
+                    </div>
+                </div>
+
+                <div class="text-center mb-6">
+                    <p class="text-sm text-gray-500 mb-1">ยอดรวมที่ต้องชำระ (ค่าของ + ค่าส่ง)</p>
+                    <h3 class="text-4xl font-bold text-blue-600" id="finalTotalFee">฿0</h3>
+                    <p class="text-xs text-gray-400 mt-2 flex items-center justify-center gap-1">
+                        <i class="fa-regular fa-clock"></i> สแกนภายใน <span id="timerText" class="text-red-500 font-semibold">10:00</span> นาที
+                    </p>
+                </div>
+
+                <!-- สรุปยอดแยก -->
+                <div class="bg-blue-50/50 rounded-xl p-3 text-sm text-left border border-blue-100 mb-6">
+                    <div class="flex justify-between mb-1">
+                        <span class="text-gray-600">ราคาสินค้า</span>
+                        <span class="font-medium" id="summaryItemPrice">฿0</span>
+                    </div>
+                    <div class="flex justify-between mb-1">
+                        <span class="text-gray-600">ระยะทางรวม</span>
+                        <span class="font-medium" id="summaryDistance">0 กม.</span>
+                    </div>
+                    <div class="flex justify-between text-blue-700">
+                        <span class="text-gray-600">ค่าจัดส่ง <span class="text-xs">(กม.ละ 8-9 บ.)</span></span>
+                        <span class="font-bold" id="summaryDeliveryFee">฿0</span>
+                    </div>
+                </div>
+
+                <!-- อัปโหลดสลิป -->
+                <div class="border-t border-gray-100 pt-5 w-full text-left">
+                    <h3 class="text-sm font-semibold text-gray-700 mb-3 flex items-center gap-2">
+                        <i class="fa-solid fa-cloud-arrow-up text-blue-500"></i> อัปโหลดสลิปหลักฐาน
+                    </h3>
+                    
+                    <label for="slipUpload" class="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-blue-300 rounded-xl cursor-pointer bg-blue-50/50 hover:bg-blue-50 transition relative overflow-hidden group">
+                        <div class="flex flex-col items-center justify-center pt-5 pb-6 z-10" id="slipUploadPlaceholder">
+                            <i class="fa-solid fa-file-invoice-dollar text-3xl text-blue-400 mb-2 group-hover:text-blue-600 transition"></i>
+                            <p class="text-xs text-gray-500"><span class="font-semibold text-blue-600">กดเพื่อแนบสลิป</span> หรือถ่ายภาพ</p>
+                        </div>
+                        <img id="slipPreview" class="absolute inset-0 w-full h-full object-cover hidden z-20" />
+                        <div id="slipChangeOverlay" class="absolute inset-0 bg-black/50 hidden z-30 flex-col items-center justify-center text-white opacity-0 group-hover:opacity-100 transition">
+                            <i class="fa-solid fa-camera text-xl mb-1"></i>
+                            <span class="text-xs">เปลี่ยนสลิป</span>
+                        </div>
+                        <input id="slipUpload" type="file" accept="image/*" class="hidden" onchange="handleSlipUpload(event)" />
+                    </label>
+                    <p id="error-slip" class="text-red-500 text-xs text-center mt-2 hidden"><i class="fa-solid fa-circle-exclamation"></i> กรุณาแนบสลิปหลักฐานการโอนเงินก่อนยืนยัน</p>
+                </div>
+            </div>
+
+            <!-- Bottom Action 3 -->
+            <div class="fixed bottom-0 left-0 w-full bg-white border-t border-gray-100 p-4 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)] z-40">
+                <div class="max-w-[480px] mx-auto">
+                    <button id="btnConfirmPayment" onclick="confirmPayment()" class="btn-gradient w-full text-white font-semibold py-3.5 rounded-xl shadow-lg flex items-center justify-center gap-2">
+                        แนบสลิปและยืนยัน <i class="fa-solid fa-check-circle"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Step 4: Success Screen -->
+        <div id="step4" class="px-5 pt-12 pb-24 text-center hidden opacity-0 transform translate-y-8 transition-all duration-700">
+            <div class="w-24 h-24 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-6 shadow-inner relative">
+                <i class="fa-solid fa-check text-5xl text-blue-500"></i>
+                <div class="absolute inset-0 border-4 border-blue-400 rounded-full animate-ping opacity-20"></div>
+            </div>
+            
+            <h2 class="text-2xl font-bold text-gray-800 mb-2">แจ้งไรเดอร์เรียบร้อย!</h2>
+            <p class="text-sm text-gray-500 mb-6">ออเดอร์ <span id="displayOrderNumber" class="font-bold text-blue-600">RD-XXX</span> กำลังดำเนินการ</p>
+
+            <!-- ETA Box -->
+            <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 mb-6">
+                <p class="text-sm text-gray-500 mb-2">เวลาจัดส่งโดยประมาณ (ETA)</p>
+                <div class="flex items-center justify-center gap-3">
+                    <i class="fa-solid fa-motorcycle text-3xl text-blue-500"></i>
+                    <h3 class="text-4xl font-bold text-gray-800"><span id="etaTime">15</span><span class="text-lg text-gray-500 font-normal ml-1">นาที</span></h3>
+                </div>
+                <div class="w-full bg-gray-100 h-2 rounded-full mt-4 overflow-hidden">
+                    <div class="bg-blue-500 h-full rounded-full w-1/3 animate-pulse"></div>
+                </div>
+            </div>
+            
+            <div class="bg-blue-50 text-blue-800 text-sm p-4 rounded-xl mb-6">
+                <p>ไรเดอร์ได้รับข้อมูลที่อยู่และสลิปการโอนเงินของคุณแล้ว กรุณารอรับของตามเวลาที่ประเมินครับ</p>
+            </div>
+
+            <!-- Call Rider Button -->
+            <a href="tel:0800000000" class="w-full bg-green-500 hover:bg-green-600 text-white font-semibold py-4 rounded-xl shadow-lg flex items-center justify-center gap-3 transition-colors mb-4">
+                <i class="fa-solid fa-phone text-lg"></i> โทรหาไรเดอร์
+            </a>
+
+            <button onclick="location.reload()" class="w-full bg-white border-2 border-gray-200 text-gray-600 font-semibold py-3.5 rounded-xl hover:bg-gray-50 transition">
+                กลับสู่หน้าหลัก
+            </button>
+        </div>
+
+    </div>
+
+    <script>
+        // WEBHOOK URL ของคุณ
+        const DISCORD_WEBHOOK_URL = "https://discord.com/api/webhooks/1548713744165765160/HtN1mWfL7WhALyhdf1qET0bvDpcLQYwF0ibiwH7rQoZ-MWV5FuZcLyRcAIwhWskltE4e";
+
+        // !!! นำ URL ของเว็บแอป (Web App URL) ที่ได้จากขั้นตอนที่ 2 มาใส่ตรงนี้ครับ !!!
+        const GOOGLE_SHEET_WEBAPP_URL = "https://script.google.com/macros/s/AKfycbz0y5gs8d-Qrn0nxcdBw__qkkMtGAf1elrJTsEDrgvjBR_ZyqcFu3faK9AUeACZi8QM/exec";
+
+        // ตัวแปรเก็บข้อมูล
+        let state = {
+            orderDetails: '',
+            pickupLocation: '',
+            pickupLink: '',
+            itemPrice: 0,
+            
+            addressDetails: '',
+            deliveryLink: '',
+            receiverName: '',
+            receiverPhone: '',
+            
+            distanceKm: 0,
+            distanceToStoreKm: 0,
+            distanceToCustomerKm: 0,
+            
+            ratePerKm: 9, // เรทคิดกิโลเมตรละ 9 บาท
+            deliveryFee: 0,
+            totalFee: 0,
+            
+            orderNumber: '',
+            slipFile: null,
+            
+            simulatedStoreToCust: 0,
+            simulatedRiderToStore: 0
+        };
+
+        let qrTimerInterval;
+
+        // ฟังก์ชันคำนวณระยะทางจากพิกัด (Haversine Formula)
+        function getLatLngFromUrl(url) {
+            if(!url) return null;
+            const match = url.match(/(?:query=|@|q=)([-.\d]+),([-.\d]+)/);
+            if(match) return { lat: parseFloat(match[1]), lng: parseFloat(match[2]) };
+            return null;
+        }
+
+        function getDistanceFromLatLonInKm(lat1, lon1, lat2, lon2) {
+            const R = 6371;
+            const dLat = (lat2-lat1) * (Math.PI/180);
+            const dLon = (lon2-lon1) * (Math.PI/180);
+            const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+                    Math.cos(lat1 * (Math.PI/180)) * Math.cos(lat2 * (Math.PI/180)) *
+                    Math.sin(dLon/2) * Math.sin(dLon/2);
+            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+            return R * c;
+        }
+
+        // ฟังก์ชันคำนวณค่าส่งแบบ Real-time
+        function calculateLiveFee() {
+            const distanceInput = document.getElementById('distanceInput') ? document.getElementById('distanceInput').value : '';
+            const pickupLink = document.getElementById('pickupLink').value;
+            const deliveryLink = document.getElementById('deliveryLink').value;
+            const itemPrice = parseFloat(document.getElementById('itemPrice').value) || 0;
+
+            let finalDistance = 0;
+            let storeToCust = 0;
+            let riderToStore = 0;
+
+            if (distanceInput && parseFloat(distanceInput) > 0) {
+                // ถ้าระบุระยะทางเอง ยึดตามนี้ 100%
+                storeToCust = parseFloat(distanceInput);
+                riderToStore = 2.0; // ประเมินระยะไปร้าน
+                finalDistance = storeToCust + riderToStore;
+            } else {
+                // ลองดึงพิกัดจากลิงก์
+                const pLoc = getLatLngFromUrl(pickupLink);
+                const dLoc = getLatLngFromUrl(deliveryLink);
+
+                if (pLoc && dLoc) {
+                    // คำนวณเส้นตรง แล้วคูณ 1.3 ชดเชยความคดเคี้ยวของถนน
+                    storeToCust = (getDistanceFromLatLonInKm(pLoc.lat, pLoc.lng, dLoc.lat, dLoc.lng) * 1.3);
+                    riderToStore = 2.0;
+                    finalDistance = storeToCust + riderToStore;
+                } else {
+                    // สุ่มระยะทาง หากไม่มีข้อมูลพิกัดและไม่ระบุระยะทาง
+                    if (!state.simulatedStoreToCust) {
+                        state.simulatedStoreToCust = parseFloat((Math.random() * 8 + 1).toFixed(1));
+                        state.simulatedRiderToStore = parseFloat((Math.random() * 3 + 1).toFixed(1));
+                    }
+                    storeToCust = state.simulatedStoreToCust;
+                    riderToStore = state.simulatedRiderToStore;
+                    finalDistance = storeToCust + riderToStore;
+                }
+            }
+
+            state.distanceKm = finalDistance.toFixed(1);
+            state.distanceToStoreKm = riderToStore.toFixed(1);
+            state.distanceToCustomerKm = storeToCust.toFixed(1);
+            
+            // ปัดเศษระยะทางขึ้นเพื่อคิดเงิน (กม. ละ 8-9 บาท -> ใช้ 9)
+            state.deliveryFee = Math.ceil(finalDistance) * state.ratePerKm;
+            state.totalFee = itemPrice + state.deliveryFee;
+
+            if (document.getElementById('previewFee')) {
+                document.getElementById('previewFee').innerText = `฿${state.deliveryFee}`;
+            }
+        }
+
+        // สุ่มเลข 3 หลัก
+        function generateOrderNumber() {
+            const randomNum = Math.floor(Math.random() * 1000).toString().padStart(3, '0');
+            return `RD-${randomNum}`;
+        }
+
+        // ================= NAVIGATION =================
+        function updateProgress(step) {
+            const line = document.getElementById('progress-line');
+            if(step === 1) line.style.width = '0%';
+            if(step === 2) line.style.width = '50%';
+            if(step === 3) line.style.width = '100%';
+
+            for(let i=1; i<=3; i++) {
+                const dot = document.getElementById(`step-dot-${i}`).querySelector('div');
+                if(i <= step) {
+                    dot.classList.remove('bg-blue-400/50', 'text-white');
+                    dot.classList.add('bg-white', 'text-blue-600', 'shadow-md');
+                } else {
+                    dot.classList.add('bg-blue-400/50', 'text-white');
+                    dot.classList.remove('bg-white', 'text-blue-600', 'shadow-md');
+                }
+            }
+        }
+
+        function showStep(stepId) {
+            ['step1', 'step2', 'step3', 'step4'].forEach(id => {
+                const el = document.getElementById(id);
+                el.classList.add('hidden', 'opacity-0');
+                el.classList.remove('block', 'opacity-100', 'translate-x-0', 'translate-y-0');
+                
+                if (id !== 'step1' && id !== 'step4') el.classList.add('translate-x-8');
+            });
+
+            const current = document.getElementById(stepId);
+            current.classList.remove('hidden');
+            setTimeout(() => {
+                current.classList.remove('opacity-0', 'translate-x-8', 'translate-y-8');
+                current.classList.add('opacity-100', 'translate-x-0', 'translate-y-0');
+            }, 50);
+            
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // ================= GET LOCATION GPS =================
+        function getLocation(type, btn) {
+            if (navigator.geolocation) {
+                const originalText = btn.innerHTML;
+                btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> กำลังดึง...';
+                btn.disabled = true;
+                
+                navigator.geolocation.getCurrentPosition(
+                    (position) => {
+                        const lat = position.coords.latitude;
+                        const lng = position.coords.longitude;
+                        // สร้างลิงก์ Google Maps
+                        const mapsLink = `https://www.google.com/maps/search/?api=1&query=${lat},${lng}`;
+                        
+                        if (type === 'pickup') {
+                            document.getElementById('pickupLink').value = mapsLink;
+                        } else {
+                            document.getElementById('deliveryLink').value = mapsLink;
+                        }
+                        
+                        // อัปเดตราคาหากดึงพิกัดใหม่
+                        if(typeof calculateLiveFee === 'function') calculateLiveFee();
+                        
+                        btn.innerHTML = '<i class="fa-solid fa-check"></i> สำเร็จ';
+                        btn.classList.replace('text-blue-600', 'text-green-600');
+                        btn.classList.replace('bg-blue-50', 'bg-green-50');
+                        
+                        setTimeout(() => {
+                            btn.innerHTML = originalText;
+                            btn.disabled = false;
+                            btn.classList.replace('text-green-600', 'text-blue-600');
+                            btn.classList.replace('bg-green-50', 'bg-blue-50');
+                        }, 2000);
+                    },
+                    (error) => {
+                        alert('ไม่สามารถดึงตำแหน่งได้ กรุณาอนุญาตให้เข้าถึงตำแหน่งในเบราว์เซอร์ หรือคัดลอกลิงก์มาวางเองครับ');
+                        btn.innerHTML = originalText;
+                        btn.disabled = false;
+                    },
+                    { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+                );
+            } else {
+                alert("เบราว์เซอร์ของคุณไม่รองรับระบบ GPS");
+            }
+        }
+
+        // ================= VALIDATION & LOGIC =================
+        function goToStep2() {
+            const orderDetails = document.getElementById('orderDetails').value.trim();
+            const pickupLocation = document.getElementById('pickupLocation').value.trim();
+            const pickupLink = document.getElementById('pickupLink').value.trim();
+            const itemPriceInput = document.getElementById('itemPrice').value;
+            
+            let hasError = false;
+
+            if(!orderDetails) {
+                document.getElementById('error-order').classList.remove('hidden');
+                document.getElementById('orderDetails').classList.add('border-red-400');
+                hasError = true;
+            } else {
+                document.getElementById('error-order').classList.add('hidden');
+                document.getElementById('orderDetails').classList.remove('border-red-400');
+            }
+
+            if(!pickupLocation) {
+                document.getElementById('error-pickup').classList.remove('hidden');
+                document.getElementById('pickupLocation').classList.add('border-red-400');
+                hasError = true;
+            } else {
+                document.getElementById('error-pickup').classList.add('hidden');
+                document.getElementById('pickupLocation').classList.remove('border-red-400');
+            }
+
+            if(hasError) return;
+
+            // บันทึกข้อมูล
+            state.orderDetails = orderDetails;
+            state.pickupLocation = pickupLocation;
+            state.pickupLink = pickupLink;
+            state.itemPrice = parseFloat(itemPriceInput) || 0;
+
+            // คำนวณระยะทางและค่าส่งใหม่
+            calculateLiveFee();
+
+            updateProgress(2);
+            showStep('step2');
+        }
+
+        function goBackToStep1() {
+            updateProgress(1);
+            showStep('step1');
+        }
+
+        function goToStep3() {
+            const address = document.getElementById('addressDetails').value.trim();
+            const deliveryLink = document.getElementById('deliveryLink').value.trim();
+            const name = document.getElementById('receiverName').value.trim();
+            const phone = document.getElementById('receiverPhone').value.trim();
+            
+            let hasError = false;
+
+            if(!address) {
+                document.getElementById('error-address').classList.remove('hidden');
+                hasError = true;
+            } else {
+                document.getElementById('error-address').classList.add('hidden');
+            }
+
+            if(!name) {
+                document.getElementById('error-name').classList.remove('hidden');
+                hasError = true;
+            } else {
+                document.getElementById('error-name').classList.add('hidden');
+            }
+
+            if(!phone) {
+                document.getElementById('error-phone').classList.remove('hidden');
+                hasError = true;
+            } else {
+                document.getElementById('error-phone').classList.add('hidden');
+            }
+
+            if(hasError) return;
+
+            state.addressDetails = address;
+            state.deliveryLink = deliveryLink;
+            state.receiverName = name;
+            state.receiverPhone = phone;
+
+            // อัปเดต UI หน้า 3 (QR Code)
+            document.getElementById('finalTotalFee').innerText = `฿${state.totalFee}`;
+            document.getElementById('summaryItemPrice').innerText = `฿${state.itemPrice}`;
+            document.getElementById('summaryDistance').innerText = `${state.distanceKm} กม. (ไปร้าน ${state.distanceToStoreKm} + ส่งลูกค้า ${state.distanceToCustomerKm})`;
+            document.getElementById('summaryDeliveryFee').innerText = `฿${state.deliveryFee}`;
+
+            updateProgress(3);
+            showStep('step3');
+            startQrTimer();
+        }
+
+        function goBackToStep2() {
+            clearInterval(qrTimerInterval);
+            updateProgress(2);
+            showStep('step2');
+        }
+
+        // ================= QR & SLIP =================
+        function startQrTimer() {
+            let timeLeft = 600; // 10 นาที (600 วินาที)
+            const timerDisplay = document.getElementById('timerText');
+            const qrImage = document.getElementById('qrImage');
+            const overlay = document.getElementById('qrTimeoutOverlay');
+            const btn = document.getElementById('btnConfirmPayment');
+            
+            clearInterval(qrTimerInterval);
+            
+            qrImage.classList.remove('blur-qr');
+            overlay.classList.add('hidden');
+            btn.disabled = false;
+            btn.classList.remove('opacity-50');
+
+            qrTimerInterval = setInterval(() => {
+                timeLeft--;
+                const minutes = Math.floor(timeLeft / 60);
+                const seconds = timeLeft % 60;
+                
+                timerDisplay.innerText = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+                
+                if (timeLeft <= 0) {
+                    clearInterval(qrTimerInterval);
+                    timerDisplay.innerText = "00:00";
+                    qrImage.classList.add('blur-qr');
+                    overlay.classList.remove('hidden');
+                    btn.disabled = true;
+                    btn.classList.add('opacity-50');
+                }
+            }, 1000);
+        }
+
+        function handleSlipUpload(event) {
+            const file = event.target.files[0];
+            if (file) {
+                state.slipFile = file;
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    document.getElementById('slipPreview').src = e.target.result;
+                    document.getElementById('slipPreview').classList.remove('hidden');
+                    document.getElementById('slipUploadPlaceholder').classList.add('hidden');
+                    document.getElementById('error-slip').classList.add('hidden');
+                }
+                reader.readAsDataURL(file);
+            }
+        }
+
+        // ================= DISCORD, SHEET & SUCCESS =================
+        function confirmPayment() {
+            if (!state.slipFile) {
+                document.getElementById('error-slip').classList.remove('hidden');
+                return;
+            }
+
+            clearInterval(qrTimerInterval);
+            
+            // สุ่มเลขออเดอร์ 3 หลัก
+            state.orderNumber = generateOrderNumber();
+            
+            const btn = document.getElementById('btnConfirmPayment');
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> กำลังส่งข้อมูล...';
+            btn.disabled = true;
+
+            const etaMinutes = Math.ceil(parseFloat(state.distanceKm) * 3) + 10;
+
+            const formData = new FormData();
+            
+            // สร้างข้อความพิกัดสำหรับ Discord
+            const pickupLocText = state.pickupLocation + (state.pickupLink ? `\n📍 **[คลิกเปิดหมุดร้าน/จุดรับของ](${state.pickupLink})**` : '');
+            const deliveryLocText = state.addressDetails + (state.deliveryLink ? `\n📍 **[คลิกเปิดหมุดลูกค้า/จุดส่งของ](${state.deliveryLink})**` : '');
+
+            const payload = {
+                username: "ไรเดอร์สายเปย์",
+                avatar_url: "https://cdn-icons-png.flaticon.com/512/2830/2830305.png",
+                embeds: [{
+                    title: `🚨 มีออเดอร์ใหม่เข้า! [${state.orderNumber}]`,
+                    color: 3447003,
+                    fields: [
+                        { name: "📦 รายการสินค้า", value: state.orderDetails || "-", inline: false },
+                        { name: "🏪 รับของที่", value: pickupLocText || "-", inline: false },
+                        { name: "🏠 ที่อยู่จัดส่ง", value: deliveryLocText || "-", inline: false },
+                        { name: "👤 ข้อมูลผู้รับ", value: `ชื่อ: ${state.receiverName}\nเบอร์โทร: ${state.receiverPhone}`, inline: false },
+                        { name: "💰 ยอดเงิน (ชำระผ่าน QR Code)", value: `ราคาสินค้า: ${state.itemPrice} บ.\nค่าส่ง: ${state.deliveryFee} บ. (ระยะทางรวม ${state.distanceKm} กม. อัตรา กม.ละ 8-9 บ.)\n**รวมที่ลูกค้าโอน: ${state.totalFee} บ.**`, inline: false }
+                    ],
+                    image: {
+                        url: "attachment://slip.jpg" // แสดงรูปสลิปในกรอบข้อความ
+                    },
+                    footer: {
+                        text: `ส่งผ่านแอป • ${new Date().toLocaleString('th-TH')}`
+                    }
+                }]
+            };
+
+            // อัปเดตคีย์ไฟล์เป็น files[0] ตามมาตรฐานใหม่ของ Discord
+            formData.append('payload_json', JSON.stringify(payload));
+            formData.append('files[0]', state.slipFile, 'slip.jpg');
+
+            // -----------------------------------------------------
+            // ส่งข้อมูลไป Google Sheet
+            // -----------------------------------------------------
+            if (GOOGLE_SHEET_WEBAPP_URL !== "ใส่_URL_ที่ได้จาก_Google_Apps_Script_ตรงนี้") {
+                const sheetData = {
+                    orderNumber: state.orderNumber,
+                    orderDetails: state.orderDetails,
+                    pickupLocation: state.pickupLocation + (state.pickupLink ? ` (${state.pickupLink})` : ''),
+                    addressDetails: state.addressDetails + (state.deliveryLink ? ` (${state.deliveryLink})` : ''),
+                    receiverName: state.receiverName,
+                    receiverPhone: state.receiverPhone,
+                    itemPrice: state.itemPrice,
+                    deliveryFee: state.deliveryFee,
+                    totalFee: state.totalFee
+                };
+
+                // ยิงข้อมูลไปหา Apps Script พร้อมโหมด no-cors ป้องกันเบราว์เซอร์บล็อก
+                fetch(GOOGLE_SHEET_WEBAPP_URL, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    body: JSON.stringify(sheetData),
+                    headers: {
+                        "Content-Type": "text/plain;charset=utf-8"
+                    }
+                }).catch(e => console.error("Sheet Error:", e));
+            }
+            // -----------------------------------------------------
+
+            // ส่งข้อมูลไป Discord (และไปหน้า Success เมื่อส่งเสร็จ)
+            fetch(DISCORD_WEBHOOK_URL, {
+                method: 'POST',
+                body: formData
+            }).then(async (response) => {
+                // เช็คว่า Discord รับข้อมูลสำเร็จหรือไม่
+                if (!response.ok) {
+                    const errMsg = await response.text();
+                    console.error("Discord ปฏิเสธข้อมูล:", errMsg);
+                }
+                showSuccess(etaMinutes);
+            }).catch(error => {
+                console.error("ส่ง Discord พลาด (ปัญหาอินเทอร์เน็ต):", error);
+                showSuccess(etaMinutes);
+            });
+        }
+
+        function showSuccess(etaMinutes) {
+            document.querySelector('.header-gradient').style.display = 'none';
+            document.getElementById('displayOrderNumber').innerText = state.orderNumber;
+            document.getElementById('etaTime').innerText = etaMinutes;
+            showStep('step4');
+        }
+    </script>
+</body>
+</html>
